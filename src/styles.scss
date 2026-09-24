@@ -1,1 +1,135 @@
-/* You can add global styles to this file, and also import other style files */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 
+ * 3D product interactions (app360 directive)
+ * - .spin-tilt: card tilts toward the cursor; tilt comes from --tilt-x/--tilt-y vars.
+ */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .spin-tilt {
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+
+  .spin-tilt:hover {
+    transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))
+      translateZ(6px) scale(1.015);
+  }
+}
+
+/*
+ * Circular 3D product media
+ * Replaces the flat photo with a looping 3D animation: the product orbits the
+ * frame center on a circular path while slowly turning (rotateY) and zooming in.
+ * The animation only plays while hovered; otherwise the product stays static.
+ */
+.circular-zoom {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  margin-inline: auto;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, #fffdfb, #f4ece4);
+  isolation: isolate;
+}
+
+.circular-zoom__orbit,
+.circular-zoom__stage,
+.circular-zoom__media {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: block;
+  margin: 0;
+}
+
+.circular-zoom__orbit {
+  inset: 3%;
+}
+
+.circular-zoom__stage {
+  border-radius: 50%;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  box-shadow: 0 22px 46px -22px rgba(64, 42, 22, 0.4);
+}
+
+.circular-zoom__media {
+  inset: 0;
+  object-fit: cover;
+}
+
+.circular-zoom__ring {
+  position: absolute;
+  inset: -1.5%;
+  border: 2px dashed rgba(199, 158, 110, 0.55);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+@keyframes orbit-circle {
+  from {
+    transform: rotate(0deg) translateX(8px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(8px) rotate(-360deg);
+  }
+}
+
+@keyframes ring-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes circular-zoom-in {
+  0%,
+  100% {
+    transform: scale(1) rotateY(0deg);
+  }
+  50% {
+    transform: scale(1.16) rotateY(18deg);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .circular-zoom {
+    transition:
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.5s ease;
+  }
+
+  .circular-zoom:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 34px 70px -30px rgba(64, 42, 22, 0.55);
+  }
+
+  .circular-zoom:hover .circular-zoom__orbit {
+    animation: orbit-circle 9s linear infinite;
+  }
+
+  .circular-zoom:hover .circular-zoom__ring {
+    animation: ring-spin 18s linear infinite reverse;
+  }
+
+  .circular-zoom:hover .circular-zoom__stage {
+    animation: circular-zoom-in 5.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+}

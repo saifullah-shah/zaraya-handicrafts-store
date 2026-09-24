@@ -1,0 +1,75 @@
+.container {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.confirmation-page {
+  display: grid;
+  place-items: center;
+  padding: 5rem 0;
+}
+
+.confirmation-card {
+  max-width: 640px;
+  width: 100%;
+  text-align: center;
+  background: #fff;
+  border: 1px solid rgba(32, 27, 24, 0.08);
+  border-radius: 22px;
+  padding: 3rem 2rem;
+}
+
+.check-mark {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1.25rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #b88b5a;
+  color: #fff;
+  font-size: 1.5rem;
+}
+
+.eyebrow {
+  color: #996c47;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0.5rem 0 1rem;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  letter-spacing: -0.04em;
+}
+
+.order-number {
+  color: #4b4341;
+}
+
+.payment-note {
+  color: #4b4341;
+  margin-top: 1rem;
+}
+
+.actions {
+  margin-top: 2rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 999px;
+  padding: 1rem 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.button-primary {
+  background: #b88b5a;
+  color: white;
+}

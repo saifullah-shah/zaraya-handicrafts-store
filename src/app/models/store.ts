@@ -37,3 +37,36 @@ export interface Address {
   postalCode: string;
   country: string;
 }
+
+export type PaymentMethod = 'stripe' | 'cod';
+
+export type OrderStatus = 'pending' | 'paid' | 'cod_pending' | 'fulfilled' | 'cancelled';
+
+export interface OrderItem {
+  productId: string;
+  productName: string;
+  quantity: number;
+  color: string;
+  size: string;
+  giftPackaging: boolean;
+  unitPrice: number;
+}
+
+export interface CreateOrderPayload {
+  items: OrderItem[];
+  address: Address;
+  paymentMethod: PaymentMethod;
+}
+
+export interface CheckoutTotals {
+  subtotal: number;
+  giftPackaging: number;
+  shipping: number;
+  total: number;
+}
+
+export interface CreateOrderResult {
+  orderId: string;
+  orderNumber: string;
+  sessionUrl?: string;
+}
