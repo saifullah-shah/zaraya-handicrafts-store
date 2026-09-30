@@ -2,13 +2,16 @@ import { Injectable, signal } from '@angular/core';
 import { products as staticProducts } from '../data/products';
 import { Product } from '../models/store';
 import { SupabaseService } from './supabase.service';
+import { PexelsService } from './pexels.service';
 
 interface ProductRow {
   id: string;
   slug: string;
   name: string;
   price: number;
+  price_cents?: number | null;
   compare_at_price: number | null;
+  compare_at_price_cents?: number | null;
   rating: number;
   reviews: number;
   badge: string;
@@ -22,16 +25,35 @@ interface ProductRow {
   stock: number;
   gift_packaging: boolean;
   details: string[];
+  sku?: string | null;
+  is_active?: boolean;
+  archived_at?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   readonly products = signal<Product[]>(staticProducts);
   readonly productsLoaded = signal(false);
+  readonly catalogError = signal('');
 
-  constructor(supabase: SupabaseService) {
+  private readonly readyPromise: Promise<void>;
+
+  constructor(supabase: SupabaseService, pexels: PexelsService) {
+    this.readyPromise = this.init(supabase, pexels);
+  }
+
+  ready(): Promise<void> {
+    return this.readyPromise;
+  }
+
+  private async init(supabase: SupabaseService, pexels: PexelsService): Promise<void> {
     if (supabase.configured) {
-      void this.loadFromSupabase(supabase);
+      await this.loadFromSupabase(supabase);
+    } else {
+      this.productsLoaded.set(true);
+    }
+    if (pexels.enabled) {
+      await this.hydrateImages(pexels);
     }
   }
 
@@ -47,10 +69,6 @@ export class ProductService {
     return this.products().find((product) => product.id === id);
   }
 
-  getFeaturedProducts(limit = 3): Product[] {
-    return this.products().slice(0, limit);
-  }
-
   private async loadFromSupabase(supabase: SupabaseService): Promise<void> {
     try {
       const { data, error } = await supabase.supabase
@@ -58,29 +76,47 @@ export class ProductService {
         .select('*')
         .order('created_at');
       if (error) {
-        console.warn(
-          'Zaraya: could not load products from Supabase, using static catalog.',
-          error.message,
-        );
-        return;
+        throw new Error(error.message);
       }
-      if (data && data.length > 0) {
-        this.products.set((data as ProductRow[]).map(this.mapRow));
-      }
+      this.products.set(
+        ((data ?? []) as ProductRow[])
+          .filter((row) => row.is_active !== false && !row.archived_at)
+          .map(this.mapRow),
+      );
+      this.catalogError.set('');
     } catch (error) {
-      console.warn('Zaraya: Supabase catalog unavailable, using static catalog.', error);
+      this.products.set([]);
+      this.catalogError.set('The collection is temporarily unavailable. Please try again shortly.');
+      console.error('Zaraya: Supabase catalog unavailable.', error);
     } finally {
       this.productsLoaded.set(true);
     }
   }
 
+  private async hydrateImages(pexels: PexelsService): Promise<void> {
+    try {
+      const hydrated = await Promise.all(
+        this.products().map(async (product) => {
+          const urls = await pexels.imagesForProduct(product);
+          return urls.length > 0 ? { ...product, images: urls } : product;
+        }),
+      );
+      this.products.set(hydrated);
+    } catch (error) {
+      console.warn('Zaraya: Pexels images unavailable, keeping catalog images.', error);
+    }
+  }
+
   private mapRow(row: ProductRow): Product {
+    const priceCents = Number(row.price_cents ?? Math.round(row.price * 100));
+    const compareAtPriceCents = row.compare_at_price_cents ?? (row.compare_at_price === null ? null : Math.round(row.compare_at_price * 100));
     return {
       id: row.id,
       slug: row.slug,
       name: row.name,
-      price: row.price,
-      compareAtPrice: row.compare_at_price ?? undefined,
+      price: priceCents / 100,
+      priceCents,
+      compareAtPrice: compareAtPriceCents === null ? undefined : compareAtPriceCents / 100,
       rating: row.rating,
       reviews: row.reviews,
       badge: row.badge,
@@ -94,6 +130,8 @@ export class ProductService {
       stock: row.stock,
       giftPackaging: row.gift_packaging,
       details: row.details,
+      sku: row.sku ?? undefined,
+      isActive: row.is_active ?? true,
     };
   }
 }

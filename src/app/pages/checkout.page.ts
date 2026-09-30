@@ -169,7 +169,8 @@ export class CheckoutPage {
   readonly lineItems = computed(() =>
     this.cart().map((item) => {
       const product = this.resolve(item.productId);
-      const gift = item.giftPackaging ? PricingService.GIFT_PACKAGING_PRICE : 0;
+       const gift = item.giftPackaging ? this.pricing.giftPackagingPrice : 0;
+
       const unit = (product ? product.price : 0) + gift;
       return {
         key: `${item.productId}-${item.color}-${item.size}-${item.giftPackaging}`,

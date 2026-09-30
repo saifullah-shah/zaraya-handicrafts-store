@@ -16,6 +16,18 @@ export class SupabaseService {
     return this.client !== null;
   }
 
+  get supabaseUrl(): string {
+    return environment.supabaseUrl;
+  }
+
+  get functionsUrl(): string {
+    return `${environment.supabaseUrl.replace(/\/+$/, '')}/functions/v1`;
+  }
+
+  get supabaseAnonKey(): string {
+    return environment.supabaseAnonKey;
+  }
+
   get supabase(): SupabaseClient {
     if (!this.client) {
       throw new Error(

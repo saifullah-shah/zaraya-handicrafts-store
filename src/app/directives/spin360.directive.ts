@@ -1,34 +1,37 @@
-import { Directive, ElementRef, Input, OnDestroy, OnInit, inject } from '@angular/core';
+import { Directive, ElementRef, Input, OnDestroy, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { afterNextRender } from '@angular/core';
 
 export type Spin360Mode = 'spin' | 'tilt';
 
-/**
- * Adds a hover-driven 3D effect to any element.
- * - mode "spin": the element rotates 360° on the Y axis while hovered.
- * - mode "tilt": the element tilts toward the cursor (rotateX/rotateY via CSS vars).
- * Automatically disabled on touch-only devices and respects prefers-reduced-motion.
- */
 @Directive({
   selector: '[app360]',
   standalone: true,
 })
-export class Spin360Directive implements OnInit, OnDestroy {
+export class Spin360Directive implements OnDestroy {
   @Input() app360: Spin360Mode = 'tilt';
   @Input() maxTilt = 9;
 
   private readonly el = inject(ElementRef<HTMLElement>).nativeElement;
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly cleanup: Array<() => void> = [];
-  private readonly supportsHover =
-    typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches;
-  private readonly reduceMotion =
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  private supportsHover = false;
+  private reduceMotion = false;
 
   private raf = 0;
   private tiltX = 0;
   private tiltY = 0;
 
-  ngOnInit(): void {
+  constructor() {
+    if (isPlatformBrowser(this.platformId)) {
+      afterNextRender(() => this.attach());
+    }
+  }
+
+  private attach(): void {
+    this.supportsHover = window.matchMedia('(hover: hover)').matches;
+    this.reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     if (!this.supportsHover) {
       return;
     }

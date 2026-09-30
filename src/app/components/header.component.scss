@@ -1,3 +1,13 @@
+.announcement-bar {
+  margin: 0;
+  padding: 0.55rem 1rem;
+  background: #2f2825;
+  color: #f6efe4;
+  text-align: center;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
 .site-header {
   position: sticky;
   top: 0;
@@ -69,6 +79,13 @@
 .button-primary {
   background: #b88b5a;
   color: white;
+}
+
+.nav-button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
 }
 
 @media (max-width: 720px) {

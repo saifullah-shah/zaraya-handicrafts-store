@@ -1,12 +1,15 @@
 import { Injectable, signal } from '@angular/core';
 import { CartItem } from '../models/store';
 
+export const MAX_ITEM_QUANTITY = 99;
+
 @Injectable({ providedIn: 'root' })
 export class CartService {
   private readonly storageKey = 'zaraya-cart';
   readonly cart = signal<CartItem[]>(this.readCart());
 
   addToCart(productId: string, color: string, size: string, giftPackaging: boolean, quantity = 1): void {
+    const requested = Math.max(1, Math.min(MAX_ITEM_QUANTITY, Math.round(quantity)));
     const current = this.cart();
     const existingIndex = current.findIndex(
       (item) => item.productId === productId && item.color === color && item.size === size && item.giftPackaging === giftPackaging,
@@ -15,13 +18,13 @@ export class CartService {
     if (existingIndex >= 0) {
       current[existingIndex] = {
         ...current[existingIndex],
-        quantity: current[existingIndex].quantity + quantity,
+        quantity: Math.min(MAX_ITEM_QUANTITY, current[existingIndex].quantity + requested),
       };
       this.persist(current);
       return;
     }
 
-    const updated = [...current, { productId, quantity, color, size, giftPackaging }];
+    const updated = [...current, { productId, quantity: requested, color, size, giftPackaging }];
     this.persist(updated);
   }
 
@@ -29,7 +32,7 @@ export class CartService {
     const current = this.cart()
       .map((item) => {
         if (item.productId === productId && item.color === color && item.size === size && item.giftPackaging === giftPackaging) {
-          return { ...item, quantity: Math.max(0, quantity) };
+          return { ...item, quantity: Math.min(MAX_ITEM_QUANTITY, Math.max(0, Math.round(quantity))) };
         }
         return item;
       })

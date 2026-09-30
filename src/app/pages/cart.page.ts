@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CartItem } from '../models/store';
-import { CartService } from '../services/cart.service';
+import { CartService, MAX_ITEM_QUANTITY } from '../services/cart.service';
 import { PricingService } from '../services/pricing.service';
 import { ProductService } from '../services/product.service';
 
@@ -45,12 +45,19 @@ import { ProductService } from '../services/product.service';
                     </p>
                     <div class="item-actions">
                       <button type="button" (click)="updateQuantity(item, item.quantity - 1)">
-                        −
+                        &minus;
                       </button>
                       <span>{{ item.quantity }}</span>
-                      <button type="button" (click)="updateQuantity(item, item.quantity + 1)">
+                      <button
+                        type="button"
+                        [disabled]="item.quantity >= maxQuantity(product)"
+                        (click)="updateQuantity(item, item.quantity + 1)"
+                      >
                         +
                       </button>
+                      @if (item.quantity > maxQuantity(product)) {
+                        <small class="stock-note">Only {{ product.stock }} left</small>
+                      }
                       <button type="button" class="remove" (click)="removeItem(item)">
                         Remove
                       </button>
@@ -106,6 +113,10 @@ export class CartPage {
 
   itemTotal(item: CartItem): number {
     return this.pricing.itemSubtotal(item, this.getProduct(item.productId));
+  }
+
+  maxQuantity(product: { stock: number }): number {
+    return Math.max(1, Math.min(product.stock, MAX_ITEM_QUANTITY));
   }
 
   updateQuantity(item: CartItem, quantity: number): void {

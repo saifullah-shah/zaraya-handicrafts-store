@@ -3,6 +3,7 @@ export interface Product {
   slug: string;
   name: string;
   price: number;
+  priceCents?: number;
   compareAtPrice?: number;
   rating: number;
   reviews: number;
@@ -17,6 +18,8 @@ export interface Product {
   stock: number;
   giftPackaging: boolean;
   details: string[];
+  sku?: string;
+  isActive?: boolean;
 }
 
 export interface CartItem {
@@ -40,7 +43,19 @@ export interface Address {
 
 export type PaymentMethod = 'stripe' | 'cod';
 
-export type OrderStatus = 'pending' | 'paid' | 'cod_pending' | 'fulfilled' | 'cancelled';
+export type OrderStatus =
+  | 'pending'
+  | 'paid'
+  | 'cod_pending'
+  | 'processing'
+  | 'shipped'
+  | 'delivered'
+  | 'fulfilled'
+  | 'cancelled'
+  | 'payment_failed'
+  | 'refunded'
+  | 'partially_refunded'
+  | 'returned';
 
 export interface OrderItem {
   productId: string;
@@ -53,9 +68,12 @@ export interface OrderItem {
 }
 
 export interface CreateOrderPayload {
-  items: OrderItem[];
+  items: Array<
+    Pick<OrderItem, 'productId' | 'quantity' | 'color' | 'size' | 'giftPackaging'>
+  >;
   address: Address;
   paymentMethod: PaymentMethod;
+  idempotencyKey?: string;
 }
 
 export interface CheckoutTotals {
@@ -69,4 +87,13 @@ export interface CreateOrderResult {
   orderId: string;
   orderNumber: string;
   sessionUrl?: string;
+  status?: OrderStatus;
+  subtotalCents?: number;
+  giftPackagingCents?: number;
+  shippingCents?: number;
+  taxCents?: number;
+  discountCents?: number;
+  totalCents?: number;
+  currency?: string;
+  confirmationToken?: string;
 }

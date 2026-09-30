@@ -156,70 +156,9 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.spin-slot {
-  display: block;
-  position: relative;
-  overflow: hidden;
-}
-
-.product-card {
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(34, 30, 28, 0.08);
-  border-radius: 24px;
-  overflow: hidden;
-}
-
-.product-card .circular-zoom {
-  max-width: 380px;
-}
-
-.product-meta {
-  padding: 1.4rem;
-}
-
-.badge {
-  display: inline-flex;
-  padding: 0.4rem 0.7rem;
-  border-radius: 999px;
-  background: #f1e7dd;
-  color: #7c5d3f;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.product-meta h3 {
-  margin: 0.85rem 0 0.6rem;
-  font-size: 1.6rem;
-}
-
-.product-meta p {
-  color: #554d49;
-  line-height: 1.7;
-}
-
-.price-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.8rem;
-  margin-top: 1rem;
-}
-
-.price-row strong {
-  font-size: 1.5rem;
-}
-
-.price-row span {
-  color: #8f8179;
-  text-decoration: line-through;
-}
-
-.text-link {
-  display: inline-block;
-  margin-top: 1rem;
-  color: #201b18;
-  text-decoration: none;
-  font-weight: 600;
+.error-text {
+  color: #8c3b2e;
+  margin: 0 0 1.5rem;
 }
 
 .benefit-grid {

@@ -79,6 +79,16 @@
   cursor: pointer;
 }
 
+.item-actions button[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stock-note {
+  color: #a33d35;
+  font-size: 0.75rem;
+}
+
 .item-actions .remove {
   width: auto;
   background: transparent;

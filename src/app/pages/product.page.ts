@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Product } from '../models/store';
-import { CartService } from '../services/cart.service';
+import { CartService, MAX_ITEM_QUANTITY } from '../services/cart.service';
 import { PricingService } from '../services/pricing.service';
 import { ProductService } from '../services/product.service';
 
@@ -157,7 +157,8 @@ export class ProductPage implements OnInit {
   }
 
   incrementQuantity(): void {
-    this.quantity += 1;
+    const available = Math.min(this.product?.stock ?? MAX_ITEM_QUANTITY, MAX_ITEM_QUANTITY);
+    this.quantity = Math.min(Math.max(1, available), this.quantity + 1);
   }
 
   decrementQuantity(): void {
@@ -168,13 +169,16 @@ export class ProductPage implements OnInit {
     if (!this.product) {
       return;
     }
+    if (this.product.stock <= 0) {
+      return;
+    }
 
     this.cartService.addToCart(
       this.product.id,
       this.selectedColor,
       this.selectedSize,
       this.giftPackaging,
-      this.quantity,
+      Math.min(this.quantity, Math.max(1, this.product.stock)),
     );
 
     this.router.navigate(['/cart']);

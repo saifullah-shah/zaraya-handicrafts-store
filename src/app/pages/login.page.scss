@@ -66,3 +66,46 @@ input {
   background: #b88b5a;
   color: #fff;
 }
+
+.auth-copy {
+  color: #8a7a66;
+  margin: -0.75rem 0 1.5rem;
+}
+
+.auth-error,
+.auth-message {
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.9rem;
+}
+
+.auth-error {
+  background: #fff0ef;
+  color: #a33d35;
+}
+
+.auth-message {
+  background: #eef8ef;
+  color: #387044;
+}
+
+.auth-switch,
+.auth-back {
+  display: block;
+  margin-top: 1.25rem;
+  color: #8a6b49;
+  font-weight: 600;
+  text-align: center;
+}
+
+.auth-switch {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.auth-back {
+  color: #8a7a66;
+  font-weight: 500;
+}

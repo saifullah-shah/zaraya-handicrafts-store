@@ -23,23 +23,24 @@ export class CheckoutService {
   }
 
   buildOrderItems(cart: CartItem[]): OrderItem[] {
-    return cart
-      .map((item) => {
-        const product = this.resolveProduct(item.productId);
-        if (!product) {
-          return null;
-        }
-        return {
-          productId: product.id,
-          productName: product.name,
-          quantity: item.quantity,
-          color: item.color,
-          size: item.size,
-          giftPackaging: item.giftPackaging,
-          unitPrice: product.price,
-        };
-      })
-      .filter((item): item is OrderItem => item !== null);
+    return cart.map((item) => {
+      const product = this.resolveProduct(item.productId);
+      if (!product) {
+        throw new Error('One or more products in your cart are no longer available.');
+      }
+      if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99) {
+        throw new Error('Cart quantities must be between 1 and 99.');
+      }
+      return {
+        productId: product.id,
+        productName: product.name,
+        quantity: item.quantity,
+        color: item.color,
+        size: item.size,
+        giftPackaging: Boolean(item.giftPackaging),
+        unitPrice: product.price,
+      };
+    });
   }
 
   async placeOrder(
@@ -57,12 +58,25 @@ export class CheckoutService {
     }
 
     if (!this.supabase.configured) {
-      return this.placeDemoOrder(paymentMethod);
+      throw new Error('Checkout is temporarily unavailable. Please try again later.');
     }
 
-    const payload: CreateOrderPayload = { items, address, paymentMethod };
+    const idempotencyKey = this.createIdempotencyKey();
+    const payload: CreateOrderPayload = {
+      items: items.map(({ productId, quantity, color, size, giftPackaging }) => ({
+        productId,
+        quantity,
+        color,
+        size,
+        giftPackaging,
+      })),
+      address,
+      paymentMethod,
+      idempotencyKey,
+    };
     const { data, error } = await this.supabase.supabase.functions.invoke('create-order', {
       body: payload,
+      headers: { 'Idempotency-Key': idempotencyKey },
     });
 
     if (error) {
@@ -70,16 +84,21 @@ export class CheckoutService {
     }
 
     const result = data as CreateOrderResult;
-    this.lastOrder = { orderId: result.orderId, orderNumber: result.orderNumber, paymentMethod };
+    if (!result?.orderId || !result.orderNumber) {
+      throw new Error('The order response was incomplete. Please try again.');
+    }
+    this.lastOrder = {
+      orderId: result.orderId,
+      orderNumber: result.orderNumber,
+      paymentMethod,
+    };
     return result;
   }
 
-  private placeDemoOrder(paymentMethod: 'stripe' | 'cod'): CreateOrderResult {
-    const result: CreateOrderResult = {
-      orderId: `demo-${Date.now().toString(36)}`,
-      orderNumber: `ZRY-${Math.floor(100000 + Math.random() * 900000)}`,
-    };
-    this.lastOrder = { orderId: result.orderId, orderNumber: result.orderNumber, paymentMethod };
-    return result;
+  private createIdempotencyKey(): string {
+    if (typeof globalThis.crypto?.randomUUID === 'function') {
+      return globalThis.crypto.randomUUID();
+    }
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
   }
 }
