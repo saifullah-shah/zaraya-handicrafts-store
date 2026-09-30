@@ -5,7 +5,7 @@ import { StoreSettings } from '../models';
 
 function defaultSettings(): StoreSettings {
   return {
-    siteName: 'Zaraya Handicrafts',
+    siteName: 'Zaraya',
     currency: 'usd',
     announcement: '',
     shippingFee: 0,

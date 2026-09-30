@@ -14,7 +14,7 @@ import { StoreSettingsService } from '../services/store-settings.service';
     }
     <header class="site-header">
       <div class="container header-inner">
-        <a routerLink="/" class="brand" aria-label="Zaraya Handicrafts home">{{ siteName() }}</a>
+        <a routerLink="/" class="brand" aria-label="Zaraya home">{{ siteName() }}</a>
 
         <nav class="main-nav" aria-label="Main navigation">
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>

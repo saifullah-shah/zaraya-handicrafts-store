@@ -64,11 +64,11 @@ describe('StoreSettingsService', () => {
 
   it('unwraps a JSON-encoded string value', async () => {
     const { service } = build([
-      { key: 'site_name', value: '"Zaraya Handicrafts"' },
+      { key: 'site_name', value: '"Zaraya"' },
       { key: 'currency', value: '"usd"' },
     ]);
     await Promise.resolve();
-    expect(service.settings().siteName).toBe('Zaraya Handicrafts');
+    expect(service.settings().siteName).toBe('Zaraya');
     expect(service.settings().currency).toBe('usd');
   });
 
@@ -124,9 +124,9 @@ describe('StoreSettingsService', () => {
   });
 
   it('mirrors the site name onto the signal the header binds to', async () => {
-    const { service } = build([{ key: 'site_name', value: 'Zaraya Handicrafts' }]);
+    const { service } = build([{ key: 'site_name', value: 'Zaraya' }]);
     await Promise.resolve();
-    expect(service.siteName()).toBe('Zaraya Handicrafts');
+    expect(service.siteName()).toBe('Zaraya');
   });
 
   it('does not query when Supabase is not configured', async () => {

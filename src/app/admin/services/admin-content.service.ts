@@ -135,7 +135,7 @@ export class AdminContentService {
       return Number.isFinite(parsed) ? parsed / 100 : fallback;
     };
     return {
-      siteName: value('site_name') || 'Zaraya Handicrafts',
+      siteName: value('site_name') || 'Zaraya',
       currency: value('currency') || 'usd',
       announcement: value('announcement'),
       shippingFee: cents('shipping_fee_cents', 18),
