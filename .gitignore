@@ -6,6 +6,9 @@
 /out-tsc
 /bazel-out
 
+# Vercel project link (contains per-machine project id)
+/.vercel
+
 # Secrets — never commit real credentials.
 .env
 .env.local

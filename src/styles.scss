@@ -37,6 +37,7 @@ body {
  * The animation only plays while hovered; otherwise the product stays static.
  */
 .circular-zoom {
+  display: block;
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;

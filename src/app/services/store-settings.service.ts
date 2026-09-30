@@ -61,7 +61,8 @@ export class StoreSettingsService {
         return raw;
       };
       const number = (key: string): number | undefined => {
-        const value = text(key);
+        const value = text(key).trim();
+        if (!value) return undefined;
         const parsed = Number(value);
         return Number.isFinite(parsed) ? parsed : undefined;
       };

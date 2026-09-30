@@ -73,12 +73,27 @@ export class LoginPage {
   }
 
   async submit(): Promise<void> {
-    this.busy.set(true);
+    if (this.busy()) return;
     this.error.set('');
     this.message.set('');
+
+    // NgForm sets novalidate on the form, so the required attributes never fire.
+    const name = this.form.name.trim();
+    const email = this.form.email.trim();
+    const password = this.form.password;
+    if (this.registerMode() && !name) {
+      this.error.set('Enter your name to create an account.');
+      return;
+    }
+    if (!email || !password) {
+      this.error.set('Enter your email and password to continue.');
+      return;
+    }
+
+    this.busy.set(true);
     try {
       if (this.registerMode()) {
-        const result = await this.auth.signUp(this.form.name.trim(), this.form.email.trim(), this.form.password);
+        const result = await this.auth.signUp(name, email, password);
         if (result.error) {
           this.error.set(result.error);
           return;
@@ -86,7 +101,7 @@ export class LoginPage {
         if (result.message) this.message.set(result.message);
         if (this.auth.user()) await this.router.navigateByUrl('/account');
       } else {
-        const error = await this.auth.signIn(this.form.email.trim(), this.form.password);
+        const error = await this.auth.signIn(email, password);
         if (error) {
           this.error.set(error);
           return;
